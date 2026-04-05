@@ -505,16 +505,20 @@ export default function SurveyPage() {
 	                <p>Required fields: Region, Department, CSL Entity, License status.</p>
 	              </div>
 
-	              <div className="mt-4 border-t border-red-100 pt-4 text-center">
-	                <a
-	                  href="https://www.rutgersconsulting.com/"
-	                  target="_blank"
-	                  rel="noreferrer"
-	                  className="text-[11px] font-medium text-gray-400 transition-colors hover:text-csl-purple hover:underline"
-	                >
-	                  Made by Rutgers Consulting Club
-	                </a>
-	              </div>
+	            </div>
+
+	            <div className="mt-4 text-center">
+	              <a
+	                href="https://www.rutgersconsulting.com/"
+	                target="_blank"
+	                rel="noreferrer"
+	                className="inline-flex items-center gap-1 text-[11px] font-medium text-gray-400 transition-colors hover:text-csl-purple"
+	              >
+	                <span>Made by Rutgers Consulting Club</span>
+	                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+	                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7m0 0H9m8 0v8" />
+	                </svg>
+	              </a>
 	            </div>
 	          </div>
 	        </form>
