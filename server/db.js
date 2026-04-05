@@ -4,11 +4,12 @@ const fs = require('fs');
 
 const dataDir = path.join(__dirname, 'data');
 const localDbPath = process.env.LOCAL_DB_PATH || path.join(dataDir, 'survey.db');
+const isTurso = Boolean(process.env.TURSO_DATABASE_URL);
 
 let db;
 let initPromise;
 
-if (process.env.TURSO_DATABASE_URL) {
+if (isTurso) {
   // Production: Turso cloud database
   db = createClient({
     url: process.env.TURSO_DATABASE_URL,
@@ -35,4 +36,24 @@ async function initDb() {
   return initPromise;
 }
 
-module.exports = { db, initDb };
+function getDbRuntimeInfo() {
+  return {
+    provider: isTurso ? 'turso' : 'sqlite',
+    remote: isTurso,
+    driver: '@libsql/client',
+  };
+}
+
+async function checkDbConnection() {
+  const startedAt = Date.now();
+  const result = await db.execute('SELECT 1 AS ok');
+
+  return {
+    ...getDbRuntimeInfo(),
+    healthy: Number(result.rows[0]?.ok) === 1,
+    latencyMs: Date.now() - startedAt,
+    checkedAt: new Date().toISOString(),
+  };
+}
+
+module.exports = { db, initDb, getDbRuntimeInfo, checkDbConnection };

@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
-const { initDb } = require('./db');
+const { initDb, checkDbConnection } = require('./db');
 const surveyRoutes = require('./routes/survey');
 const adminRoutes = require('./routes/admin');
 
@@ -34,6 +34,16 @@ app.use(async (req, res, next) => {
 });
 
 // API routes
+app.get('/api/db-check', async (req, res, next) => {
+  try {
+    const result = await checkDbConnection();
+    res.set('Cache-Control', 'no-store');
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.use('/api/survey', surveyRoutes);
 app.use('/api/admin', adminRoutes);
 
