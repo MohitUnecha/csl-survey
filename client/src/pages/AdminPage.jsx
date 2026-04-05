@@ -181,7 +181,7 @@ function LoginPanel({ credentials, onChange, onSubmit, busy, error }) {
               <button
                 type="submit"
                 disabled={busy}
-                className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-csl-purple to-csl-purple-dark px-5 py-3.5 text-sm font-bold text-white shadow-xl shadow-csl-purple/20 transition-all hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-csl-purple via-csl-purple-dark to-csl-purple px-5 py-3.5 text-sm font-bold text-white shadow-xl shadow-csl-purple/20 transition-all hover:scale-[1.01] disabled:cursor-not-allowed disabled:brightness-110 disabled:saturate-75"
               >
                 {busy ? 'Signing in...' : 'Unlock Dashboard'}
               </button>

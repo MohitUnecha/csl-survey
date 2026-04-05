@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FloatingLogo from '../components/FloatingLogo'
 import ProgressBar from '../components/ProgressBar'
@@ -116,10 +116,19 @@ function Section({ title, subtitle, children, index }) {
   )
 }
 
+const REQUIRED_FIELD_CONFIG = [
+  { key: 'region', label: 'Region' },
+  { key: 'department', label: 'Department' },
+  { key: 'csl_entity', label: 'CSL Entity' },
+  { key: 'license_status', label: 'License status' },
+]
+
 export default function SurveyPage() {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [submitState, setSubmitState] = useState({ type: 'idle', message: '' });
+  const [showSlowSubmitNote, setShowSlowSubmitNote] = useState(false);
 
   const [form, setForm] = useState({
     region: '',
@@ -148,9 +157,25 @@ export default function SurveyPage() {
     open_response: '',
   });
 
+  useEffect(() => {
+    if (!submitting) {
+      setShowSlowSubmitNote(false);
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShowSlowSubmitNote(true);
+    }, 1800);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [submitting]);
+
   const set = (field) => (value) => {
     setForm(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: undefined }));
+    setSubmitState((prev) => (prev.type === 'idle' || prev.type === 'submitting'
+      ? prev
+      : { type: 'idle', message: '' }));
   };
 
   const SECTIONS = [
@@ -178,35 +203,84 @@ export default function SurveyPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
-    if (!form.region) newErrors.region = true;
-    if (!form.department) newErrors.department = true;
-    if (!form.csl_entity) newErrors.csl_entity = true;
-    if (!form.license_status) newErrors.license_status = true;
+    const missingFields = REQUIRED_FIELD_CONFIG.filter(({ key }) => !form[key]);
+
+    missingFields.forEach(({ key }) => {
+      newErrors[key] = true;
+    });
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setSubmitState({
+        type: 'validation',
+        message: `Please complete the required fields: ${missingFields.map(field => field.label).join(', ')}.`,
+      });
+
+      const firstMissingField = document.querySelector(`[data-field="${missingFields[0].key}"]`);
+      if (firstMissingField) {
+        firstMissingField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
       return;
     }
 
     setSubmitting(true);
+    setSubmitState({
+      type: 'submitting',
+      message: 'Submitting your anonymous response securely...',
+    });
+
+    let timeoutId;
+
     try {
+      const controller = new AbortController();
+      timeoutId = window.setTimeout(() => controller.abort(), 25000);
+
       const res = await fetch('/api/survey', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
+        signal: controller.signal,
       });
+
+      window.clearTimeout(timeoutId);
+
       if (res.ok) {
-        navigate('/thankyou');
+        setSubmitState({
+          type: 'success',
+          message: 'Response saved. Taking you to the thank-you page...',
+        });
+        window.setTimeout(() => navigate('/thankyou'), 700);
       } else {
-        alert('Something went wrong. Please try again.');
+        let errorMessage = 'Something went wrong while saving your response. Please try again.';
+        try {
+          const data = await res.json();
+          if (data?.error) errorMessage = data.error;
+        } catch {
+          // Ignore parse errors and keep fallback message.
+        }
+
+        setSubmitState({ type: 'error', message: errorMessage });
       }
-    } catch {
-      alert('Could not connect to server. Please try again.');
+    } catch (error) {
+      const message = error.name === 'AbortError'
+        ? 'The server is taking longer than expected. Please try again in a moment.'
+        : 'Could not connect to the server. Please check your connection and try again.';
+
+      setSubmitState({ type: 'error', message });
     } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
       setSubmitting(false);
     }
   };
+
+  const submitPanelTone = submitState.type === 'error' || submitState.type === 'validation'
+    ? 'border-red-200 bg-red-50/90'
+    : submitState.type === 'success'
+      ? 'border-emerald-200 bg-emerald-50/90'
+      : 'border-red-100 bg-white/90';
 
   return (
     <div className="min-h-screen relative">
@@ -231,14 +305,22 @@ export default function SurveyPage() {
         <form onSubmit={handleSubmit}>
           {/* Section 1: About You */}
           <Section title={SECTIONS[0].title} subtitle={SECTIONS[0].subtitle} index={0}>
-            <Dropdown label="Which region are you in?" value={form.region} onChange={set('region')} options={REGIONS} required />
+            <div data-field="region">
+              <Dropdown label="Which region are you in?" value={form.region} onChange={set('region')} options={REGIONS} required />
+            </div>
             {errors.region && <p className="text-red-500 text-xs -mt-4">Please select your region</p>}
-            <Dropdown label="What department do you work in?" value={form.department} onChange={set('department')} options={DEPARTMENTS} required />
+            <div data-field="department">
+              <Dropdown label="What department do you work in?" value={form.department} onChange={set('department')} options={DEPARTMENTS} required />
+            </div>
             {errors.department && <p className="text-red-500 text-xs -mt-4">Please select your department</p>}
-            <Dropdown label="Which part of CSL do you belong to?" value={form.csl_entity} onChange={set('csl_entity')} options={CSL_ENTITIES} required />
+            <div data-field="csl_entity">
+              <Dropdown label="Which part of CSL do you belong to?" value={form.csl_entity} onChange={set('csl_entity')} options={CSL_ENTITIES} required />
+            </div>
             {errors.csl_entity && <p className="text-red-500 text-xs -mt-4">Please select your CSL entity</p>}
             <Dropdown label="What is your role level?" value={form.role_level} onChange={set('role_level')} options={ROLE_LEVELS} />
-            <Dropdown label="Do you have a Microsoft Copilot license?" value={form.license_status} onChange={set('license_status')} options={LICENSE_OPTIONS} required />
+            <div data-field="license_status">
+              <Dropdown label="Do you have a Microsoft Copilot license?" value={form.license_status} onChange={set('license_status')} options={LICENSE_OPTIONS} required />
+            </div>
             {errors.license_status && <p className="text-red-500 text-xs -mt-4">Please select your license status</p>}
           </Section>
 
@@ -378,26 +460,51 @@ export default function SurveyPage() {
           </Section>
 
           {/* Submit */}
-          <div className="text-center mt-8 animate-fade-in">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="inline-flex items-center gap-2 px-10 py-4 bg-gradient-to-r from-csl-purple to-csl-purple-dark
-                text-white font-bold text-lg rounded-2xl shadow-xl shadow-csl-purple/25
-                hover:shadow-2xl hover:shadow-csl-purple/30 hover:scale-[1.02]
-                active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Submitting...
-                </>
-              ) : 'Submit Survey'}
-            </button>
-            <p className="text-xs text-gray-400 mt-4">Your responses are anonymous and will help improve AI programs at CSL.</p>
+          <div className="mt-10 animate-fade-in">
+            <div className={`glass rounded-[28px] border p-5 sm:p-6 shadow-xl shadow-csl-purple/10 ${submitPanelTone}`}>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-left">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-csl-purple">Final Step</p>
+                  <h3 className="mt-2 text-2xl font-extrabold text-csl-dark">Send your anonymous response</h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    {submitState.message || 'Review your answers and submit when you are ready.'}
+                  </p>
+                  {showSlowSubmitNote && submitState.type === 'submitting' && (
+                    <p className="mt-2 text-xs font-medium text-csl-purple">
+                      The server is waking up and saving your response. Keep this tab open for a few seconds.
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="inline-flex min-w-[220px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-csl-purple via-csl-purple-dark to-csl-purple px-10 py-4 text-lg font-bold text-white shadow-xl shadow-csl-purple/25 transition-all duration-200 hover:scale-[1.02] hover:shadow-2xl hover:shadow-csl-purple/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:brightness-110 disabled:saturate-75"
+                >
+                  {submitting ? (
+                    <>
+                      <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Sending Response...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Submit Survey
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-2 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+                <p>Your responses are anonymous and will help improve AI programs at CSL.</p>
+                <p>Required fields: Region, Department, CSL Entity, License status.</p>
+              </div>
+            </div>
           </div>
         </form>
       </div>
