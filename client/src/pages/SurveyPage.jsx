@@ -500,14 +500,25 @@ export default function SurveyPage() {
                 </button>
               </div>
 
-              <div className="mt-4 flex flex-col gap-2 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between">
-                <p>Your responses are anonymous and will help improve AI programs at CSL.</p>
-                <p>Required fields: Region, Department, CSL Entity, License status.</p>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
+	              <div className="mt-4 flex flex-col gap-2 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+	                <p>Your responses are anonymous and will help improve AI programs at CSL.</p>
+	                <p>Required fields: Region, Department, CSL Entity, License status.</p>
+	              </div>
+
+	              <div className="mt-4 border-t border-red-100 pt-4 text-center">
+	                <a
+	                  href="https://www.rutgersconsulting.com/"
+	                  target="_blank"
+	                  rel="noreferrer"
+	                  className="text-[11px] font-medium text-gray-400 transition-colors hover:text-csl-purple hover:underline"
+	                >
+	                  Made by Rutgers Consulting Club
+	                </a>
+	              </div>
+	            </div>
+	          </div>
+	        </form>
+	      </div>
     </div>
   )
 }
