@@ -226,6 +226,16 @@ router.get('/export', async (req, res) => {
   }
 });
 
+router.delete('/responses', async (req, res) => {
+  try {
+    const result = await db.execute('DELETE FROM responses');
+    res.json({ deleted: Number(result.rowsAffected) });
+  } catch (err) {
+    console.error('Clear error:', err);
+    res.status(500).json({ error: 'Failed to clear responses' });
+  }
+});
+
 const SEED_RESPONSES = [
   { region: 'North America', department: 'R&D', csl_entity: 'CSL Behring', role_level: 'Individual Contributor', license_status: 'Yes, I have a Copilot license', ai_readiness: 4, prompt_comfort: 3, ai_output_confidence: 3, daily_ai_use: 'Frequently (daily)', ai_learning_methods: ['Prompt Academy sessions', 'Hands-on experimentation / self-taught'], tools_used: ['Microsoft Copilot', 'ChatGPT'], ai_use_cases: ['Drafting emails and communications', 'Research and information gathering'], agent_experience: 'No, but I know what they are', agent_knowledge: 'I have a general idea', ai_discovery_reasons: ['Personal curiosity', 'Peer or colleague influence'], ai_motivators: ['Saving time on repetitive tasks', 'Curiosity about new technology'], ai_barriers: ['Privacy or data security concerns'], capability_building_interest: 'Very interested - I want to build AI into my daily work', preferred_learning_format: 'Hands-on labs / sandbox environments', champion_interest: "Yes, I'd love to be an AI champion", what_makes_champion: 'Willingness to experiment and share learnings with the team', share_motivators: 'Show concrete time savings with real examples from daily work', ai_success_story: 'Used Copilot to summarize a 40-page clinical report in under 5 minutes — saved hours of prep time.', open_response: '' },
   { region: 'Europe', department: 'Manufacturing', csl_entity: 'CSL Seqirus', role_level: 'Manager', license_status: 'Yes, I have a Copilot license', ai_readiness: 3, prompt_comfort: 2, ai_output_confidence: 2, daily_ai_use: 'Occasionally (a few times a week)', ai_learning_methods: ['Team-specific training', 'Self-paced resources (SharePoint, LinkedIn Learning, Workday)'], tools_used: ['Microsoft Copilot', 'ChatGPT', 'Google Gemini'], ai_use_cases: ['Summarizing documents and meetings', 'Creating presentations'], agent_experience: "No, I'm not sure what AI agents are", agent_knowledge: "No, this is new to me", ai_discovery_reasons: ['Company-wide initiative', 'Manager or team recommendation'], ai_motivators: ['Improving quality of work', 'Leadership encouragement'], ai_barriers: ['Lack of time to learn', 'Too many tools / overwhelming'], capability_building_interest: "Somewhat interested - I'd like to learn more", preferred_learning_format: 'Live virtual training sessions', champion_interest: "Maybe, I'd like to learn more about it", what_makes_champion: 'Someone who bridges the gap between technical and non-technical colleagues', share_motivators: 'Lunch & learns with live demos', ai_success_story: '', open_response: 'Would love more manufacturing-specific use cases.' },

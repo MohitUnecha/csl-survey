@@ -210,6 +210,7 @@ export default function AdminPage() {
   const [exporting, setExporting] = useState(false)
   const [seeding, setSeeding] = useState(false)
   const [seedMsg, setSeedMsg] = useState('')
+  const [clearing, setClearing] = useState(false)
 
   const [filters, setFilters] = useState({ region: '', department: '', csl_entity: '' })
 
@@ -320,6 +321,23 @@ export default function AdminPage() {
     }
   }
 
+  const handleClear = async () => {
+    if (!window.confirm(`Delete ALL ${stats?.total || 0} responses? This cannot be undone.`)) return
+    if (!window.confirm('Are you absolutely sure? Every response will be permanently erased.')) return
+    setClearing(true)
+    setSeedMsg('')
+    try {
+      const res = await fetchWithAuth('/api/admin/responses', { method: 'DELETE' })
+      const data = await res.json()
+      setSeedMsg(`✓ Deleted ${data.deleted} responses`)
+      await fetchData()
+    } catch {
+      setSeedMsg('Clear failed — check console')
+    } finally {
+      setClearing(false)
+    }
+  }
+
   const handleSeed = async () => {
     if (!window.confirm('Insert 28 demo responses into the database?')) return
     setSeeding(true)
@@ -423,6 +441,15 @@ export default function AdminPage() {
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/60">Responses</p>
                 <p className="text-lg font-bold">{stats?.total || 0}</p>
               </div>
+
+              <button
+                onClick={handleClear}
+                disabled={clearing}
+                className="inline-flex items-center gap-2 rounded-2xl border border-red-300/40 bg-red-900/30 px-5 py-2.5 text-sm font-semibold text-red-200 transition-colors hover:bg-red-900/50 disabled:cursor-not-allowed disabled:opacity-60"
+                title="Permanently delete all responses"
+              >
+                {clearing ? 'Clearing...' : 'Clear all data'}
+              </button>
 
               <button
                 onClick={handleSeed}
