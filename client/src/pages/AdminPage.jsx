@@ -208,6 +208,8 @@ export default function AdminPage() {
   const [expandedRow, setExpandedRow] = useState(null)
   const [activeTab, setActiveTab] = useState('Overview')
   const [exporting, setExporting] = useState(false)
+  const [seeding, setSeeding] = useState(false)
+  const [seedMsg, setSeedMsg] = useState('')
 
   const [filters, setFilters] = useState({ region: '', department: '', csl_entity: '' })
 
@@ -318,6 +320,22 @@ export default function AdminPage() {
     }
   }
 
+  const handleSeed = async () => {
+    if (!window.confirm('Insert 28 demo responses into the database?')) return
+    setSeeding(true)
+    setSeedMsg('')
+    try {
+      const res = await fetchWithAuth('/api/admin/seed', { method: 'POST' })
+      const data = await res.json()
+      setSeedMsg(`✓ Inserted ${data.inserted} demo responses`)
+      await fetchData()
+    } catch {
+      setSeedMsg('Seed failed — check console')
+    } finally {
+      setSeeding(false)
+    }
+  }
+
   const handleExport = async () => {
     setExporting(true)
 
@@ -405,6 +423,16 @@ export default function AdminPage() {
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/60">Responses</p>
                 <p className="text-lg font-bold">{stats?.total || 0}</p>
               </div>
+
+              <button
+                onClick={handleSeed}
+                disabled={seeding}
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+                title="Insert 28 fictitious demo responses"
+              >
+                {seeding ? 'Seeding...' : 'Load demo data'}
+              </button>
+              {seedMsg && <span className="text-xs font-medium text-green-300">{seedMsg}</span>}
 
               <button
                 onClick={handleExport}
