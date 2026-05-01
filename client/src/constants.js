@@ -61,29 +61,22 @@ export const DAILY_USE_OPTIONS = [
   'Always (multiple times a day)',
 ];
 
-export const PROMPT_ACADEMY_OPTIONS = [
-  'Prompt Academy 01 - Intro to Gen AI & Prompting',
-  'Prompt Academy 02 - Advanced Prompting Techniques',
-  'Prompt Academy 03 - AI as Thought Partner',
-  'Digital Compass x Prompt Academy',
-  'Custom Prompt Training',
-  'Multiple sessions',
-  'I haven\'t attended any Prompt Academy',
+export const AI_LEARNING_OPTIONS = [
+  'Prompt Academy sessions',
+  'Team-specific training',
+  'Self-paced resources (SharePoint, LinkedIn Learning, Workday)',
+  'External learning (courses, books, podcasts)',
+  'Hands-on experimentation / self-taught',
+  'Peer learning from colleagues',
 ];
 
 export const TOOLS_USED = [
-  'Microsoft Copilot Chat',
-  'Copilot in Word',
-  'Copilot in Excel',
-  'Copilot in PowerPoint',
-  'Copilot in Outlook',
-  'Copilot in Teams',
+  'Microsoft Copilot',
   'ChatGPT',
-  'Google Gemini',
   'Claude (Anthropic)',
-  'Prompt Gallery',
-  'Prompt Lab',
-  'Other AI tools',
+  'Google Gemini',
+  'Perplexity',
+  'Other',
   'I don\'t use any AI tools',
 ];
 
@@ -177,8 +170,8 @@ export const LEARNING_FORMAT_OPTIONS = [
   'Lunch & learn sessions',
 ];
 
-export const AMBASSADOR_OPTIONS = [
-  'Yes, I\'d love to be an AI ambassador',
+export const CHAMPION_OPTIONS = [
+  'Yes, I\'d love to be an AI champion',
   'Maybe, I\'d like to learn more about it',
   'No, but I\'d like to learn from one',
   'Not interested at this time',

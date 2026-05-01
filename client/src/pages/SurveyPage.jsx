@@ -4,10 +4,10 @@ import FloatingLogo from '../components/FloatingLogo'
 import ProgressBar from '../components/ProgressBar'
 import {
   REGIONS, DEPARTMENTS, CSL_ENTITIES, ROLE_LEVELS, LICENSE_OPTIONS,
-  DAILY_USE_OPTIONS, PROMPT_ACADEMY_OPTIONS, TOOLS_USED, AI_USE_CASES,
+  DAILY_USE_OPTIONS, AI_LEARNING_OPTIONS, TOOLS_USED, AI_USE_CASES,
   AGENT_EXPERIENCE_OPTIONS, AGENT_KNOWLEDGE_OPTIONS,
   DISCOVERY_REASONS, MOTIVATORS, BARRIERS, CAPABILITY_OPTIONS,
-  LEARNING_FORMAT_OPTIONS, AMBASSADOR_OPTIONS, LIKERT_LABELS,
+  LEARNING_FORMAT_OPTIONS, CHAMPION_OPTIONS, LIKERT_LABELS,
 } from '../constants'
 
 function Dropdown({ label, value, onChange, options, required }) {
@@ -140,7 +140,7 @@ export default function SurveyPage() {
     prompt_comfort: null,
     ai_output_confidence: null,
     daily_ai_use: '',
-    prompt_academy_cohort: '',
+    ai_learning_methods: [],
     tools_used: [],
     ai_use_cases: [],
     agent_experience: '',
@@ -150,7 +150,7 @@ export default function SurveyPage() {
     ai_barriers: [],
     capability_building_interest: '',
     preferred_learning_format: '',
-    ambassador_interest: '',
+    champion_interest: '',
     what_makes_champion: '',
     share_motivators: '',
     ai_success_story: '',
@@ -192,10 +192,10 @@ export default function SurveyPage() {
     let count = 0;
     if (form.region && form.department && form.csl_entity && form.license_status) count++;
     if (form.ai_readiness && form.daily_ai_use) count++;
-    if (form.tools_used.length > 0 || form.prompt_academy_cohort) count++;
+    if (form.tools_used.length > 0 || form.ai_learning_methods.length > 0) count++;
     if (form.agent_experience || form.agent_knowledge) count++;
     if (form.ai_discovery_reasons.length > 0 || form.ai_motivators.length > 0) count++;
-    if (form.capability_building_interest || form.preferred_learning_format) count++;
+    if (form.capability_building_interest || form.preferred_learning_format || form.champion_interest) count++;
     if (form.what_makes_champion || form.share_motivators || form.ai_success_story || form.open_response) count++;
     return count;
   };
@@ -294,10 +294,10 @@ export default function SurveyPage() {
             <img src="/csl-logo.svg" alt="CSL" className="h-12" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-csl-dark mb-3">
-            AI Upskilling Survey
+            AI Readiness Survey
           </h1>
           <p className="text-gray-500 max-w-md mx-auto">
-            Help shape the future of AI at CSL. Your responses are <span className="font-semibold text-csl-purple">completely anonymous</span>.
+            Help us understand AI adoption at CSL. Your responses are <span className="font-semibold text-csl-purple">completely anonymous</span>.
           </p>
           <p className="text-xs text-gray-400 mt-2">Takes approximately 5-7 minutes to complete</p>
         </div>
@@ -351,11 +351,11 @@ export default function SurveyPage() {
 
           {/* Section 3: Tools & Training */}
           <Section title={SECTIONS[2].title} subtitle={SECTIONS[2].subtitle} index={2}>
-            <Dropdown
-              label="Which Prompt Academy session(s) have you attended?"
-              value={form.prompt_academy_cohort}
-              onChange={set('prompt_academy_cohort')}
-              options={PROMPT_ACADEMY_OPTIONS}
+            <MultiSelect
+              label="How have you learned about AI? (select all that apply)"
+              options={AI_LEARNING_OPTIONS}
+              value={form.ai_learning_methods}
+              onChange={set('ai_learning_methods')}
             />
             <MultiSelect
               label="Which AI tools have you used? (select all that apply)"
@@ -424,14 +424,15 @@ export default function SurveyPage() {
               options={LEARNING_FORMAT_OPTIONS}
             />
             <Dropdown
-              label="Would you be interested in becoming an AI Ambassador at CSL?"
-              value={form.ambassador_interest}
-              onChange={set('ambassador_interest')}
-              options={AMBASSADOR_OPTIONS}
+              label="Would you be interested in becoming an AI champion at CSL?"
+              value={form.champion_interest}
+              onChange={set('champion_interest')}
+              options={CHAMPION_OPTIONS}
             />
           </Section>
 
-          {/* Section 7: AI Champions */}
+          {/* Section 7: AI Champions — conditional on interest */}
+          {(form.champion_interest === "Yes, I'd love to be an AI champion" || form.champion_interest === "Maybe, I'd like to learn more about it") && (
           <Section title={SECTIONS[6].title} subtitle={SECTIONS[6].subtitle} index={6}>
             <TextArea
               label="In your opinion, what makes someone an AI champion at CSL?"
@@ -458,6 +459,7 @@ export default function SurveyPage() {
               placeholder="Anything else you'd like to share about your AI journey at CSL..."
             />
           </Section>
+          )}
 
           {/* Submit */}
           <div className="mt-10 animate-fade-in">
