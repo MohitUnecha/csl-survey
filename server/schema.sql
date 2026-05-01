@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS responses (
   daily_ai_use TEXT,
 
   -- Training & Tools
-  prompt_academy_cohort TEXT,
+  ai_learning_methods TEXT,
   tools_used TEXT,
   ai_use_cases TEXT,
 
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS responses (
   -- Capability & Learning
   capability_building_interest TEXT,
   preferred_learning_format TEXT,
-  ambassador_interest TEXT,
+  champion_interest TEXT,
 
   -- Champions (qualitative)
   what_makes_champion TEXT,

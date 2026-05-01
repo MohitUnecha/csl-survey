@@ -368,8 +368,8 @@ export default function AdminPage() {
   const agentExpData = stats?.agentExpCounts?.filter((entry) => entry.agent_experience).map((entry) => ({ name: entry.agent_experience, count: Number(entry.count) })) || []
   const agentKnowData = stats?.agentKnowCounts?.filter((entry) => entry.agent_knowledge).map((entry) => ({ name: entry.agent_knowledge, count: Number(entry.count) })) || []
   const roleData = stats?.roleCounts?.filter((entry) => entry.role_level).map((entry) => ({ name: entry.role_level, count: Number(entry.count) })) || []
-  const cohortData = stats?.cohortCounts?.filter((entry) => entry.prompt_academy_cohort).map((entry) => ({ name: entry.prompt_academy_cohort, count: Number(entry.count) })) || []
-  const ambassadorData = stats?.ambassadorCounts?.filter((entry) => entry.ambassador_interest).map((entry) => ({ name: entry.ambassador_interest, count: Number(entry.count) })) || []
+  const learningMethodData = stats?.learningMethodCounts?.map((entry) => ({ name: entry.name, count: Number(entry.count) })) || []
+  const championData = stats?.championCounts?.filter((entry) => entry.champion_interest).map((entry) => ({ name: entry.champion_interest, count: Number(entry.count) })) || []
 
   const licensedCount = licenseData.find((entry) => entry.name?.includes('Yes'))?.count || 0
 
@@ -521,8 +521,8 @@ export default function AdminPage() {
                 </div>
 
                 <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-                  <ChartCard title="Prompt Academy Attendance">
-                    <SimpleBar data={cohortData} color="#475569" />
+                  <ChartCard title="How Respondents Learned About AI">
+                    <SimpleBar data={learningMethodData} color="#475569" />
                   </ChartCard>
                   <ChartCard title="AI Output Confidence">
                     <SimpleBar data={confData} layout="horizontal" color="#8E1224" />
@@ -564,8 +564,8 @@ export default function AdminPage() {
                 </div>
 
                 <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-                  <ChartCard title="Ambassador Interest">
-                    <SimplePie data={ambassadorData} />
+                  <ChartCard title="AI Champion Interest">
+                    <SimplePie data={championData} />
                   </ChartCard>
                   <ChartCard title="Qualitative Highlights">
                     <div className="max-h-80 space-y-3 overflow-y-auto">
@@ -635,12 +635,12 @@ export default function AdminPage() {
                               <td colSpan={11} className="p-0">
                                 <div className="border-t border-red-100 bg-red-50/40 p-6">
                                   <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
-                                    <div><span className="font-semibold text-gray-500">Prompt Academy:</span> {response.prompt_academy_cohort || '—'}</div>
+                                    <div><span className="font-semibold text-gray-500">How Learned About AI:</span> {Array.isArray(response.ai_learning_methods) && response.ai_learning_methods.length ? response.ai_learning_methods.join(', ') : '—'}</div>
                                     <div><span className="font-semibold text-gray-500">Tools Used:</span> {Array.isArray(response.tools_used) && response.tools_used.length ? response.tools_used.join(', ') : '—'}</div>
                                     <div><span className="font-semibold text-gray-500">Use Cases:</span> {Array.isArray(response.ai_use_cases) && response.ai_use_cases.length ? response.ai_use_cases.join(', ') : '—'}</div>
                                     <div><span className="font-semibold text-gray-500">Agent Knowledge:</span> {response.agent_knowledge || '—'}</div>
                                     <div><span className="font-semibold text-gray-500">Agent Experience:</span> {response.agent_experience || '—'}</div>
-                                    <div><span className="font-semibold text-gray-500">Ambassador Interest:</span> {response.ambassador_interest || '—'}</div>
+                                    <div><span className="font-semibold text-gray-500">AI Champion Interest:</span> {response.champion_interest || '—'}</div>
                                     <div><span className="font-semibold text-gray-500">Discovery Reasons:</span> {Array.isArray(response.ai_discovery_reasons) && response.ai_discovery_reasons.length ? response.ai_discovery_reasons.join(', ') : '—'}</div>
                                     <div><span className="font-semibold text-gray-500">Motivators:</span> {Array.isArray(response.ai_motivators) && response.ai_motivators.length ? response.ai_motivators.join(', ') : '—'}</div>
                                     <div><span className="font-semibold text-gray-500">Barriers:</span> {Array.isArray(response.ai_barriers) && response.ai_barriers.length ? response.ai_barriers.join(', ') : '—'}</div>

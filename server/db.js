@@ -25,11 +25,22 @@ if (isTurso) {
   });
 }
 
+async function runMigrations() {
+  const migrations = [
+    'ALTER TABLE responses ADD COLUMN ai_learning_methods TEXT',
+    'ALTER TABLE responses ADD COLUMN champion_interest TEXT',
+  ];
+  for (const sql of migrations) {
+    try { await db.execute(sql); } catch { /* column already exists */ }
+  }
+}
+
 async function initDb() {
   if (!initPromise) {
     initPromise = (async () => {
       const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf-8');
       await db.execute(schema);
+      await runMigrations();
     })();
   }
 

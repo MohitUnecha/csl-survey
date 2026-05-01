@@ -18,10 +18,10 @@ router.post('/', async (req, res) => {
       sql: `INSERT INTO responses (
         region, department, csl_entity, role_level, license_status,
         ai_readiness, prompt_comfort, ai_output_confidence, daily_ai_use,
-        prompt_academy_cohort, tools_used, ai_use_cases,
+        ai_learning_methods, tools_used, ai_use_cases,
         agent_experience, agent_knowledge,
         ai_discovery_reasons, ai_motivators, ai_barriers,
-        capability_building_interest, preferred_learning_format, ambassador_interest,
+        capability_building_interest, preferred_learning_format, champion_interest,
         what_makes_champion, share_motivators, ai_success_story, open_response
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
         body.prompt_comfort || null,
         body.ai_output_confidence || null,
         body.daily_ai_use || null,
-        body.prompt_academy_cohort || null,
+        body.ai_learning_methods ? JSON.stringify(body.ai_learning_methods) : null,
         body.tools_used ? JSON.stringify(body.tools_used) : null,
         body.ai_use_cases ? JSON.stringify(body.ai_use_cases) : null,
         body.agent_experience || null,
@@ -44,7 +44,7 @@ router.post('/', async (req, res) => {
         body.ai_barriers ? JSON.stringify(body.ai_barriers) : null,
         body.capability_building_interest || null,
         body.preferred_learning_format || null,
-        body.ambassador_interest || null,
+        body.champion_interest || null,
         body.what_makes_champion || null,
         body.share_motivators || null,
         body.ai_success_story || null,
